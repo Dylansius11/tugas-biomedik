@@ -1,0 +1,18 @@
+# data and heavy outputs stay out of git
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+results/checkpoints/*
+results/predictions/*
+!results/checkpoints/.gitkeep
+!results/predictions/.gitkeep
+*.pt
+*.pth
+*.npz
+.env
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
