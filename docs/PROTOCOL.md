@@ -93,7 +93,7 @@ Kontrak berkas keluaran pelatihan (jangan diubah tanpa kabar):
 results/checkpoints/{fold}/{scenario}/seed{seed}/best.pt
 results/predictions/{fold}/{scenario}/seed{seed}/pred.npz
     ids      : array str, (N,)         id citra, format "{source}/{name}"
-    group    : array str, (N,)         "in_source" atau "foreign"
+    group    : array str, (N,)         "val", "in_source" atau "foreign"
     prob_u8  : array uint8, (N,256,256) probabilitas sigmoid x 255, dibulatkan
 results/metrics/{fold}/{scenario}/seed{seed}.csv      (dibuat evaluate.py)
 results/tables/tuning_{fold}.csv                      (dibuat tuning)
