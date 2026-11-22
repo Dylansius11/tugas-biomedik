@@ -57,26 +57,25 @@ def assign_splits(n: int, fractions: dict, rng: np.random.Generator) -> list[str
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--zip", action="store_true", help="also write data/processed.zip for sharing (Colab, teammates)")
+    ap.add_argument("--sources", nargs="+", choices=["darwin", "montgomery", "shenzhen"], help="partial dry run on some sources (manifest will be incomplete)")
     args = ap.parse_args()
 
     cfg = load_config()
     raw, out = ROOT / cfg["data"]["raw_dir"], ROOT / cfg["data"]["processed_dir"]
     size = cfg["data"]["image_size"]
     rows = []
-    for source in cfg["sources"]:
+    for source in (args.sources or cfg["sources"]):
         z = zipfile.ZipFile(raw / SOURCE_ZIP[source])
         pairs = list_pairs(z)
         stems = sorted(pairs)
-        if source == "darwin":
+        if source == "darwin":  # fixed random order; take the first N usable pairs
             rng = np.random.default_rng(cfg["data"]["sample_seed"])
-            stems = sorted(rng.choice(stems, size=cfg["data"]["darwin_sample"], replace=False).tolist())
-        print(f"{source}: {len(pairs)} pairs in zip, using {len(stems)}")
-        split_rng = np.random.default_rng(cfg["data"]["split_seed"])
-        splits = assign_splits(len(stems), cfg["data"]["split"], split_rng)
-        (out / source / "images").mkdir(parents=True, exist_ok=True)
-        (out / source / "masks").mkdir(parents=True, exist_ok=True)
-        resized_masks = 0
-        for stem, split in zip(stems, splits):
+            stems = rng.permutation(stems).tolist()
+        target = cfg["data"]["darwin_sample"] if source == "darwin" else len(stems)
+        kept, skipped, resized_masks = [], 0, 0
+        for stem in stems:
+            if len(kept) == target:
+                break
             im_member, mk_member = pairs[stem]
             img, msk = decode(z, im_member), decode(z, mk_member)
             gray = to_gray_uint8(img)
@@ -84,6 +83,19 @@ def main() -> None:
                 msk = cv2.resize(binarize_mask(msk), (gray.shape[1], gray.shape[0]), interpolation=cv2.INTER_NEAREST)
                 resized_masks += 1
             img256, msk256 = resize_image(gray, size), resize_mask(msk, size)
+            frac = float((msk256 > 0).mean())
+            if frac < cfg["data"]["min_mask_frac"]:
+                skipped += 1
+                continue
+            kept.append((stem, img256, msk256, gray.shape, frac))
+        print(f"{source}: {len(pairs)} pairs in zip, using {len(kept)}, skipped {skipped} with empty or tiny masks")
+        kept.sort(key=lambda k: k[0])
+        split_rng = np.random.default_rng(cfg["data"]["split_seed"])
+        splits = assign_splits(len(kept), cfg["data"]["split"], split_rng)
+        for sub in ("images", "masks"):
+            shutil.rmtree(out / source / sub, ignore_errors=True)  # drop files from earlier runs
+            (out / source / sub).mkdir(parents=True, exist_ok=True)
+        for (stem, img256, msk256, shape, frac), split in zip(kept, splits):
             cv2.imwrite(str(out / source / "images" / f"{stem}.png"), img256)
             cv2.imwrite(str(out / source / "masks" / f"{stem}.png"), msk256)
             rows.append(
@@ -93,9 +105,9 @@ def main() -> None:
                     "name": stem,
                     "image_path": f"{source}/images/{stem}.png",
                     "mask_path": f"{source}/masks/{stem}.png",
-                    "orig_h": gray.shape[0],
-                    "orig_w": gray.shape[1],
-                    "mask_area_frac": round(float((msk256 > 0).mean()), 5),
+                    "orig_h": shape[0],
+                    "orig_w": shape[1],
+                    "mask_area_frac": round(frac, 5),
                     "split": split,
                 }
             )

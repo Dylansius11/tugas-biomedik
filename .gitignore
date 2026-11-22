@@ -1,6 +1,7 @@
 # data and heavy outputs stay out of git
 data/raw/*
 data/processed/*
+data/processed.zip
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 results/checkpoints/*

@@ -21,14 +21,14 @@ Sumber: Danilov dkk. (2022), *Chest X-ray dataset for lung segmentation*, Mendel
 | Sumber | Di koleksi | Dipakai | Asal | Peran |
 |---|---|---|---|---|
 | Shenzhen | 566 | 566 | Shenzhen No.3 People's Hospital, Cina. Fokus TB | Inti skrining TB |
-| Montgomery | 139 | 139 | Program TB Montgomery County, AS. Fokus TB | Inti skrining TB |
-| Darwin | 6.106 | 600 (acak, seed 42) | Koleksi campuran (V7 Labs), resolusi dan alat beragam, termasuk rontgen portabel | Uji tekanan: sumber yang sangat berbeda |
+| Montgomery | 139 (deskripsi), 138 (berkas) | 138 | Program TB Montgomery County, AS. Fokus TB | Inti skrining TB |
+| Darwin | 6.106 | 600 (acak, seed 42, mask tidak kosong) | Koleksi COVID-19 dan pneumonia viral (V7 Labs), alat dan kondisi pengambilan beragam, termasuk rontgen portabel | Uji tekanan: sumber yang sangat berbeda |
 
 Catatan kejujuran: Darwin bukan koleksi TB. Klaim kita adalah kesiapan lintas sumber untuk segmentasi paru yang dipakai di skrining TB, bukan akurasi diagnosis TB.
 
 Pemeriksaan wajib sebelum eksperimen (dikerjakan `scripts/prepare_data.py` dan `scripts/qc_data.py`):
 1. Jumlah citra per sumber sesuai tabel di atas, setiap citra punya tepat satu mask.
-2. Mask biner (0 dan 255 saja), tidak kosong, luas mask wajar.
+2. Mask hanya 0 dan 255 setelah `binarize_mask` (mask asli membawa noise anti-aliasing sekitar 0,1% piksel bernilai 1 sampai 254, jadi dibinerkan di ambang 127), tidak kosong, luas mask wajar.
 3. 20 sampel per sumber dicek visual (tumpang tindih citra dan mask).
 4. Deteksi duplikat dekat antar sumber dengan perceptual hash. Duplikat lintas sumber membuat uji "asing" bocor, jadi harus dibuang dari sumber uji.
 
@@ -59,7 +59,7 @@ Urutan pra-pemrosesan, sama untuk semua skenario:
 | S2 | CLAHE bawaan: `clipLimit=2.0`, `tileGridSize=(8, 8)` |
 | S3 | CLAHE hasil tuning, parameter dipilih per lipatan (bagian 5) |
 
-INTER_AREA dipilih karena Darwin punya citra sampai 5600x4700 piksel. Interpolasi bilinear pada penurunan sebesar itu menimbulkan aliasing.
+Semua citra di koleksi sudah berukuran 512x512 (terverifikasi saat `prepare_data.py`), jadi penurunan ke 256x256 tepat separuh. INTER_AREA dipilih karena paling bersih untuk penurunan ukuran; mask memakai nearest neighbor.
 
 Augmentasi hanya geometris, diterapkan ke citra dan mask bersamaan, tidak mengubah kontras: rotasi sampai 10 derajat, skala 0,9 sampai 1,1, translasi 5%. Tanpa flip horizontal, karena posisi jantung membawa informasi.
 

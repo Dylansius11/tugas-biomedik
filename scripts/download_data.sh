@@ -6,7 +6,7 @@ cd "$(dirname "$0")/../data/raw"
 BASE="https://data.mendeley.com/public-files/datasets/8gf9vpkhgy/files"
 get() { # name id sha256
   if [ ! -f "$1" ] || ! echo "$3  $1" | sha256sum -c --status; then
-    curl -L --fail --retry 3 -o "$1" "$BASE/$2/file_downloaded"
+    curl -L --fail --retry 3 -C - -o "$1" "$BASE/$2/file_downloaded"
   fi
   echo "$3  $1" | sha256sum -c
 }

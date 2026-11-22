@@ -5,6 +5,7 @@ data:
   image_size: 256
   darwin_sample: 600
   sample_seed: 42
+  min_mask_frac: 0.02     # pairs whose mask covers less than this are dropped before sampling (empty or broken masks)
   split: {train: 0.8, val: 0.1, test: 0.1}
   split_seed: 42
 sources: [darwin, montgomery, shenzhen]
