@@ -75,7 +75,7 @@ METODE = [
         "rows": [
             ["Shenzhen", "566", "Shenzhen No.3 People's Hospital, Cina", "Inti skrining TB"],
             ["Montgomery", "138", "Program TB Montgomery County, AS", "Inti skrining TB"],
-            ["Darwin", "600 dari 6.106", "Koleksi COVID-19 dan pneumonia viral; alat dan resolusi beragam, termasuk rontgen portabel", "Uji tekanan"],
+            ["Darwin", "600 dari 6.106", "Koleksi COVID-19 dan pneumonia viral; alat dan kondisi pengambilan beragam, termasuk rontgen portabel", "Uji tekanan"],
         ],
         "widths": [2.5, 2.7, 6.8, 3.0],
         "note": "Sumber: deskripsi koleksi (Danilov dkk., 2022). Deskripsi menyebut 139 citra Montgomery, berkas yang diunduh berisi 138 pasang citra dan *mask*.",
@@ -84,7 +84,7 @@ METODE = [
     ("p", "Kami memakai skema *leave-one-source-out* (Gambar 2). Tiap sumber dibagi acak menjadi 80% latih, 10% validasi, dan 10% uji dalam sumber. Pada tiap lipatan, dua sumber menjadi data latih dan validasi, sedangkan sumber ketiga seluruhnya menjadi uji sumber asing. Sumber asing tidak dipakai untuk validasi, tuning, maupun menentukan ambang alarm. Satu model menghasilkan dua skor, dan selisihnya kami sebut celah generalisasi. Metadata pasien tidak tersedia, jadi satu pasien bisa muncul di lebih dari satu bagian pada pembagian dalam sumber. Risiko ini tidak menyentuh uji sumber asing yang menjadi dasar kesimpulan utama."),
     ("fig", {"file": "gambar2_loso.png", "caption": "Gambar 2. Skema leave-one-source-out", "width": 14.0}),
     ("h2", "5.4 Pra-pemrosesan"),
-    ("p", "Semua citra diubah ke *grayscale* dan ukuran 256×256 (interpolasi area untuk citra karena citra Darwin bisa sampai 5600×4700 piksel, *nearest neighbor* untuk *mask*). Setelah itu dibuat empat skenario (Tabel 2). Augmentasi hanya geometris (rotasi sampai 10 derajat, skala 0,9 sampai 1,1, translasi 5%) sehingga tidak bercampur dengan efek kontras."),
+    ("p", "Semua citra di koleksi sudah berukuran 512×512. Pada Darwin, pasangan dengan *mask* kosong dibuang sebelum 600 citra diambil secara acak. Citra diubah ke *grayscale* dan 256×256 (interpolasi area untuk citra, *nearest neighbor* untuk *mask*). Setelah itu dibuat empat skenario (Tabel 2). Augmentasi hanya geometris (rotasi sampai 10 derajat, skala 0,9 sampai 1,1, translasi 5%) sehingga tidak bercampur dengan efek kontras."),
     ("table", {
         "caption": "Tabel 2. Skenario peningkatan kontras",
         "header": ["Skenario", "Perlakuan"],
