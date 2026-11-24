@@ -30,3 +30,16 @@ postprocess: {threshold: 0.5, keep_components: 2, closing_kernel: 5}
 metrics: {failure_dice: 0.90, failure_sensitivity: [0.85, 0.93], hd95_empty_value: 362.0}
 readiness: {max_failure_rate: 0.05, max_median_dice_drop: 0.02, max_alarm_rate: 0.10, alarm_percentile: 95}
 stats: {alpha: 0.05, min_effect_dice: 0.01, bootstrap: 10000, sample_size_check: 50, sample_repeats: 1000}
+
+# Percobaan 2 (docs/PLAN-PERCOBAAN-2.md). Post-hoc, approved by Dylan. Does not change the 36 main runs above.
+exp2:
+  scenario: S0
+  # which definition of "lung" each source's masks use (seen in docs/PLAN-PERCOBAAN-2.md, figure x1)
+  convention: {darwin: anatomical, montgomery: visible, shenzhen: visible}
+  heads: [visible, anatomical]
+  arms: [E1, E2]                 # E1: convention-aware heads; E2: E1 + strong augmentation
+  pick_tie: 0.002                # final arm = higher mean val Dice; if within this, take E2
+  strong_aug: {rotation_deg: 15, scale: [0.85, 1.15], translate: 0.08, gamma: [0.7, 1.5], brightness: 0.1,
+               contrast: [0.75, 1.25], blur_p: 0.25, blur_sigma: [0.5, 1.5], noise_p: 0.25, noise_std: 0.03}
+  fewshot: {k: [5, 10, 20, 50], iters: 300, lr: 0.0001, batch_target: 8, batch_replay: 8}
+  explain: {tta_shift_px: 8, tta_scales: [0.95, 1.05], uncertain_std: 0.15, ref_percentile: 95}
