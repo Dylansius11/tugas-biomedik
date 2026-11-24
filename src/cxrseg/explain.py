@@ -30,6 +30,7 @@ FACTORS = [
     ("tta_unstable", "bagian paru yang goyah saat foto digeser", "prediksi tidak stabil", "-"),
 ]
 ONE_SIDED = {"hist_dist": 1, "lr_balance": -1, "fragments": 1, "entropy": 1, "tta_unstable": 1}
+MIN_SCALE = {"fragments": 0.5}  # a count: on validation it is almost always 2, so MAD is 0; one extra piece = z 2
 
 
 def hist(x_u8: np.ndarray) -> np.ndarray:
@@ -83,7 +84,8 @@ class Reference:
         self.med = np.median(v, 0)
         lo, hi = np.percentile(v, [2.5, 97.5], 0)
         mad = 1.4826 * np.median(np.abs(v - self.med), 0)
-        self.scale = np.maximum.reduce([mad, (hi - lo) / 4, np.full_like(mad, 1e-4)])
+        floor = np.array([MIN_SCALE.get(k, 1e-4) for k in self.keys])
+        self.scale = np.maximum.reduce([mad, (hi - lo) / 4, floor])
         self.lo, self.hi = lo, hi
         self.tau = float(np.percentile(self.a3(val_feats), percentile))
 
@@ -121,6 +123,7 @@ def source_verdict(ref: Reference, feats: list[dict], max_alarm_rate: float) -> 
     reasons = []
     for j in order[:3]:
         k, label, up, down = FACTORS[j]
-        med = float(np.median([f[k] for f in feats]))
-        reasons.append(f"{share[j] * 100:.0f}% foto: {label} {up if np.median(zs[:, j]) > 0 else down} (median {med:.3f}, normal {ref.lo[j]:.3f}-{ref.hi[j]:.3f})")
+        flagged = z[:, j] > ref.tau
+        med = float(np.median([f[k] for f, fl in zip(feats, flagged) if fl]))
+        reasons.append(f"{share[j] * 100:.0f}% foto: {label} {up if np.median(zs[flagged, j]) > 0 else down} (median foto beralarm {med:.3f}, normal {ref.lo[j]:.3f}-{ref.hi[j]:.3f})")
     return {"alarm_rate": float(alarm.mean()), "ready": bool(alarm.mean() <= max_alarm_rate), "reasons": reasons}
