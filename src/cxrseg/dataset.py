@@ -75,23 +75,25 @@ class SegDataset(Dataset):
         return torch.from_numpy(np.ascontiguousarray(img))[None], torch.from_numpy(np.ascontiguousarray(msk).astype(np.float32))[None]
 
 
-def load_group(cfg: dict, fold: str, scenario: str, group: str, s3_path: str | Path = S3_PARAMS_PATH):
+def load_group(cfg: dict, fold: str, scenario: str, group: str, s3_path: str | Path = S3_PARAMS_PATH, clahe: ClaheParams | None = None):
     """Preprocessed arrays for one group: train, val, in_source_test or foreign.
 
+    `clahe` overrides the S3 parameters (used by tuning, which tries a grid before s3_params.csv exists).
     Returns (ids, images float32 (N,H,W), masks uint8 0/1 (N,H,W)).
     """
     from .data import load_manifest
 
     processed = ROOT / cfg["data"]["processed_dir"]
     rows = fold_split(load_manifest(processed), fold)[group]
-    clahe = scenario_params(fold, scenario, s3_path)
+    if clahe is None:
+        clahe = scenario_params(fold, scenario, s3_path)
     imgs, msks = load_arrays(rows, processed)
     x = np.stack([preprocess(i, scenario, clahe) for i in imgs])
     return rows["id"].tolist(), x, (msks > 0).astype(np.uint8)
 
 
-def make_train_val(cfg: dict, fold: str, scenario: str, seed: int, s3_path: str | Path = S3_PARAMS_PATH):
+def make_train_val(cfg: dict, fold: str, scenario: str, seed: int, s3_path: str | Path = S3_PARAMS_PATH, clahe: ClaheParams | None = None):
     """Training (augmented) and validation datasets. Never touches the held-out source."""
-    _, xt, yt = load_group(cfg, fold, scenario, "train", s3_path)
-    _, xv, yv = load_group(cfg, fold, scenario, "val", s3_path)
+    _, xt, yt = load_group(cfg, fold, scenario, "train", s3_path, clahe)
+    _, xv, yv = load_group(cfg, fold, scenario, "val", s3_path, clahe)
     return SegDataset(xt, yt, cfg["train"]["augmentation"], seed), SegDataset(xv, yv)
