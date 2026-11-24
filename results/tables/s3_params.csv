@@ -1,0 +1,4 @@
+fold,clip_limit,tile_grid
+ho_darwin,4.0,4x4
+ho_montgomery,3.0,8x8
+ho_shenzhen,2.0,8x8
