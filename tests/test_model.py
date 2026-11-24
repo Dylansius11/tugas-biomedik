@@ -13,9 +13,7 @@ def test_output_shape_and_params():
     assert 5e6 < count_params(m) < 12e6
 
 
-def test_logits_not_squashed():
+def test_outputs_logits_not_probabilities():
     m = build_model(load_config())
-    m.eval()
-    with torch.no_grad():
-        y = m(torch.rand(1, 1, 256, 256))
-    assert y.min() < 0 or y.max() > 1  # raw logits, sigmoid is applied outside
+    assert not any(isinstance(x, torch.nn.Sigmoid) for x in m.modules())  # sigmoid is applied outside
+    assert isinstance(m.head, torch.nn.Conv2d)
