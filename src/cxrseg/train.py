@@ -16,7 +16,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 
 from .config import ROOT, load_config
-from .dataset import SegDataset, load_group, make_train_val
+from .dataset import S3_PARAMS_PATH, SegDataset, load_group, make_train_val
 from .model import build_model, count_params
 from .preprocess import ClaheParams
 
@@ -148,11 +148,11 @@ def fit(
     return {"best_dice": state["best"], "epochs": state["epoch"], "history": state["history"]}
 
 
-def write_predictions(model: nn.Module, cfg: dict, fold: str, scenario: str, pred_path: Path, device: str) -> None:
+def write_predictions(model: nn.Module, cfg: dict, fold: str, scenario: str, pred_path: Path, device: str, s3_path: Path = S3_PARAMS_PATH) -> None:
     """The only place where the held-out ('foreign') source is read. Contract: docs/PROTOCOL.md section 6."""
     ids, groups, probs = [], [], []
     for group, key in (("val", "val"), ("in_source", "in_source_test"), ("foreign", "foreign")):
-        gid, x, _ = load_group(cfg, fold, scenario, key)
+        gid, x, _ = load_group(cfg, fold, scenario, key, s3_path)
         ids += gid
         groups += [group] * len(gid)
         probs.append(predict_probs(model, x, device, cfg["train"]["batch_size"]))
@@ -172,12 +172,13 @@ def train_run(cfg: dict, fold: str, scenario: str, seed: int, results: Path, max
         return None
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
     seed_everything(seed)
-    train_ds, val_ds = make_train_val(cfg, fold, scenario, seed)
+    s3_path = results / "tables" / "s3_params.csv"
+    train_ds, val_ds = make_train_val(cfg, fold, scenario, seed, s3_path)
     model = build_model(cfg)
     print(f"{fold}/{scenario}/seed{seed}: {len(train_ds)} train, {len(val_ds)} val images, {count_params(model):,} parameters, device {device}")
     res = fit(model, train_ds, val_ds, cfg, seed, max_epochs or cfg["train"]["max_epochs"], ckpt_dir, device, amp)
     model.load_state_dict(torch.load(ckpt_dir / "best.pt", map_location=device))
-    write_predictions(model, cfg, fold, scenario, pred_path, device)
+    write_predictions(model, cfg, fold, scenario, pred_path, device, s3_path)
     print(f"best val dice {res['best_dice']:.4f} after {res['epochs']} epochs; wrote {pred_path}")
     return res
 
