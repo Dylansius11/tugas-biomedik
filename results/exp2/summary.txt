@@ -1,0 +1,133 @@
+final arm (picked on validation only): E2   mean val dice {'E1': np.float64(0.9575808888888889), 'E2': np.float64(0.9575047777777778)}
+
+== Foreign (held-out source) results, per-image Dice averaged over 3 seeds ==
+arm          fold  in_median  foreign_median  foreign_mean  foreign_fail_pct  coverage  precision
+ E0     ho_darwin     0.9754          0.7730        0.7445           97.3333    0.6397     0.9759
+ E0 ho_montgomery     0.9661          0.9455        0.9431            6.5217    0.9696     0.9290
+ E0   ho_shenzhen     0.9659          0.8998        0.8949           50.5300    0.9821     0.8311
+ E1     ho_darwin     0.9742          0.7763        0.7450           97.8333    0.6449     0.9757
+ E1 ho_montgomery     0.9686          0.9735        0.9672            2.8986    0.9626     0.9873
+ E1   ho_shenzhen     0.9668          0.9436        0.9358           10.6007    0.9857     0.9117
+ E2     ho_darwin     0.9751          0.7791        0.7560           97.3333    0.6479     0.9769
+ E2 ho_montgomery     0.9678          0.9742        0.9687            2.8986    0.9582     0.9936
+ E2   ho_shenzhen     0.9661          0.9604        0.9501            6.5371    0.9859     0.9426
+
+== Paired comparison vs E0 on the foreign source (Wilcoxon, bootstrap 95% CI of mean difference) ==
+arm          fold  mean_diff   ci_lo  ci_hi      p
+ E1     ho_darwin     0.0005 -0.0014 0.0023 0.9799
+ E1 ho_montgomery     0.0241  0.0205 0.0277 0.0000
+ E1   ho_shenzhen     0.0409  0.0389 0.0428 0.0000
+ E2     ho_darwin     0.0115  0.0074 0.0160 0.0000
+ E2 ho_montgomery     0.0256  0.0218 0.0296 0.0000
+ E2   ho_shenzhen     0.0552  0.0524 0.0578 0.0000
+
+== Few-shot: k labelled images of the new source (evaluated on its val+test split, never adapted on) ==
+         fold  k model  median  fail_pct
+    ho_darwin  0    E0  0.7896   95.8333
+    ho_darwin  0    E2  0.7874   95.8333
+    ho_darwin  5  E2+k  0.8952   54.1667
+    ho_darwin 10  E2+k  0.9191   21.6667
+    ho_darwin 20  E2+k  0.9345   15.8333
+    ho_darwin 50  E2+k  0.9429   10.0000
+ho_montgomery  0    E0  0.9491   10.7143
+ho_montgomery  0    E2  0.9732    3.5714
+ho_montgomery  5  E2+k  0.9808    0.0000
+ho_montgomery 10  E2+k  0.9814    0.0000
+ho_montgomery 20  E2+k  0.9815    0.0000
+ho_montgomery 50  E2+k  0.9823    0.0000
+  ho_shenzhen  0    E0  0.9018   44.7368
+  ho_shenzhen  0    E2  0.9603    7.8947
+  ho_shenzhen  5  E2+k  0.9595    6.1404
+  ho_shenzhen 10  E2+k  0.9638    7.8947
+  ho_shenzhen 20  E2+k  0.9664    7.8947
+  ho_shenzhen 50  E2+k  0.9688    8.7719
+
+== Explainable alarm A3 vs A1/A2 (mean over seeds; tau from validation only) ==
+                     tau  in_alarm_pct  foreign_alarm_pct  foreign_fail_pct  caught_fail_pct  auroc_A1  auroc_A2  auroc_A3
+arm fold                                                                                                                  
+E0  ho_darwin      3.947         5.164             55.444            97.333           56.393     0.507     0.652     0.714
+    ho_montgomery  3.362         7.407             40.338             6.522           44.444       NaN       NaN       NaN
+    ho_shenzhen    3.554        13.964             18.198            50.530           23.193     0.524     0.541     0.602
+E2  ho_darwin      3.851         6.573             55.556            97.333           56.678     0.454     0.754     0.753
+    ho_montgomery  3.362         6.268             32.367             2.899           83.333       NaN       NaN       NaN
+    ho_shenzhen    3.544        10.811             16.549             6.537           49.550     0.537     0.836     0.763
+
+== Which factors fire on the foreign source (mean over seeds) ==
+                                flagged_pct  flagged_in_failed_pct  auroc
+arm fold          factor                                                 
+E0  ho_darwin     area                 0.61                   0.63   0.42
+                  bottom               0.00                   0.00   0.51
+                  brightness           0.00                   0.00   0.54
+                  contrast             0.67                   0.51   0.47
+                  entropy              8.72                   8.79   0.65
+                  fragments            4.39                   4.51   0.61
+                  hist_dist            1.28                   1.31   0.51
+                  lr_balance          29.67                  30.37   0.83
+                  tta_unstable        49.44                  50.23   0.72
+    ho_montgomery area                 0.00                   0.00    NaN
+                  bottom               3.38                   3.70    NaN
+                  brightness           3.14                   0.00    NaN
+                  contrast            22.46                   3.70    NaN
+                  entropy              0.00                   0.00    NaN
+                  fragments            0.00                   0.00    NaN
+                  hist_dist            8.70                  11.11    NaN
+                  lr_balance           2.42                  11.11    NaN
+                  tta_unstable        12.80                  22.22    NaN
+    ho_shenzhen   area                 0.00                   0.00   0.57
+                  bottom               0.00                   0.00   0.66
+                  brightness           1.41                   2.10   0.52
+                  contrast             0.00                   0.00   0.53
+                  entropy              0.06                   0.12   0.54
+                  fragments            2.71                   3.38   0.51
+                  hist_dist            7.77                   7.81   0.52
+                  lr_balance           2.47                   3.96   0.60
+                  tta_unstable         9.25                  13.29   0.60
+E2  ho_darwin     area                 0.00                   0.00   0.43
+                  bottom               0.00                   0.00   0.46
+                  brightness           0.06                   0.06   0.48
+                  contrast             0.67                   0.51   0.45
+                  entropy             17.11                  17.47   0.75
+                  fragments            4.72                   4.85   0.60
+                  hist_dist            1.61                   1.66   0.45
+                  lr_balance          30.61                  31.45   0.86
+                  tta_unstable        45.56                  46.58   0.76
+    ho_montgomery area                 0.00                   0.00    NaN
+                  bottom               4.35                  16.67    NaN
+                  brightness           3.38                   0.00    NaN
+                  contrast            21.50                  41.67    NaN
+                  entropy              0.00                   0.00    NaN
+                  fragments            0.00                   0.00    NaN
+                  hist_dist            8.94                  50.00    NaN
+                  lr_balance           3.14                  58.33    NaN
+                  tta_unstable         2.17                   0.00    NaN
+    ho_shenzhen   area                 0.00                   0.00   0.63
+                  bottom               0.00                   0.00   0.55
+                  brightness           1.53                   3.60   0.53
+                  contrast             0.00                   0.00   0.48
+                  entropy              0.12                   1.80   0.84
+                  fragments            4.00                   9.01   0.58
+                  hist_dist            7.77                  10.81   0.54
+                  lr_balance           2.65                  20.72   0.68
+                  tta_unstable         5.77                  30.63   0.72
+
+== Source-level verdict with reasons (seed 11) ==
+E0 Darwin     alarm  51.3%  says BELUM SIAP  truth BELUM SIAP
+      - 47% foto: bagian paru yang goyah saat foto digeser prediksi tidak stabil (median foto beralarm 0.123, normal 0.000-0.040)
+      - 25% foto: keseimbangan paru kiri-kanan tidak seimbang (median foto beralarm 0.411, normal 0.711-0.956)
+      - 5% foto: jumlah potongan mask mentah terpecah-pecah (median foto beralarm 4.000, normal 2.000-2.000)
+E0 Montgomery alarm  52.9%  says BELUM SIAP  truth BELUM SIAP
+      - 31% foto: kontras foto lebih tajam kontrasnya (median foto beralarm 0.351, normal 0.177-0.300)
+      - 21% foto: bagian paru yang goyah saat foto digeser prediksi tidak stabil (median foto beralarm 0.065, normal 0.000-0.053)
+      - 10% foto: jarak histogram ke data latih (A1) gaya foto jauh berbeda (median foto beralarm 0.268, normal 0.026-0.201)
+E0 Shenzhen   alarm  19.3%  says BELUM SIAP  truth BELUM SIAP
+      - 11% foto: bagian paru yang goyah saat foto digeser prediksi tidak stabil (median foto beralarm 0.072, normal 0.000-0.050)
+      - 7% foto: jarak histogram ke data latih (A1) gaya foto jauh berbeda (median foto beralarm 0.245, normal 0.022-0.204)
+E2 Darwin     alarm  57.8%  says BELUM SIAP  truth BELUM SIAP
+      - 51% foto: bagian paru yang goyah saat foto digeser prediksi tidak stabil (median foto beralarm 0.039, normal 0.000-0.010)
+      - 31% foto: keseimbangan paru kiri-kanan tidak seimbang (median foto beralarm 0.371, normal 0.705-0.961)
+      - 9% foto: keraguan rata-rata model (A2) model lebih ragu (median foto beralarm 0.068, normal 0.024-0.049)
+E2 Montgomery alarm  39.1%  says BELUM SIAP  truth SIAP
+      - 28% foto: kontras foto lebih tajam kontrasnya (median foto beralarm 0.352, normal 0.177-0.300)
+      - 10% foto: jarak histogram ke data latih (A1) gaya foto jauh berbeda (median foto beralarm 0.268, normal 0.026-0.201)
+E2 Shenzhen   alarm  16.3%  says BELUM SIAP  truth BELUM SIAP
+      - 8% foto: jarak histogram ke data latih (A1) gaya foto jauh berbeda (median foto beralarm 0.242, normal 0.022-0.204)
