@@ -4,7 +4,8 @@ Follows docs/plans/BUILD-PLAN-NABIL.md (N1) and docs/PROTOCOL.md section 2.
 Outputs:
   - {out}/figures/qc_{source}.png
   - {out}/tables/qc_summary.csv
-  - {out}/tables/qc_duplicates.csv
+  - {out}/tables/qc_duplicates.csv   (dHash candidates + pixel_corr, is_duplicate)
+  - {out}/tables/qc_flags.csv        (flagged images kept in the data, from config qc.flagged)
 
 Usage:
     python scripts/qc_data.py [--processed-dir data/processed] [--out results]
@@ -69,6 +70,44 @@ def find_cross_source_duplicates(
     return df
 
 
+def pixel_correlation(img_a: np.ndarray, img_b: np.ndarray, size: int = 128) -> float:
+    """Pearson correlation of two images after resizing to size x size (second duplicate check)."""
+    a = cv2.resize(img_a, (size, size), interpolation=cv2.INTER_AREA).astype(np.float64).ravel()
+    b = cv2.resize(img_b, (size, size), interpolation=cv2.INTER_AREA).astype(np.float64).ravel()
+    a -= a.mean()
+    b -= b.mean()
+    den = np.sqrt((a * a).sum() * (b * b).sum())
+    return float((a * b).sum() / den) if den > 0 else (1.0 if np.array_equal(a, b) else 0.0)
+
+
+def verify_duplicates(
+    dup_df: pd.DataFrame,
+    images: dict[str, np.ndarray],
+    *,
+    size: int = 128,
+    min_corr: float = 0.99,
+) -> pd.DataFrame:
+    """Add `pixel_corr` and `is_duplicate` to dHash candidate pairs.
+
+    dHash 8x8 is coarse for chest X-rays with uniform layout, so a candidate only counts as a true
+    duplicate when the pixel correlation is >= min_corr.
+    """
+    out = dup_df.copy()
+    corr = [pixel_correlation(images[a], images[b], size) for a, b in zip(out["id_a"], out["id_b"])]
+    out["pixel_corr"] = pd.Series(corr, index=out.index, dtype=np.float64)
+    out["is_duplicate"] = out["pixel_corr"] >= float(min_corr)
+    return out
+
+
+def flagged_table(manifest: pd.DataFrame, flagged: dict[str, str]) -> pd.DataFrame:
+    """qc_flags.csv: images kept in the data but flagged for the report (no image is removed)."""
+    rows = []
+    split = manifest.set_index("id")["split"] if "split" in manifest.columns else pd.Series(dtype=str)
+    for img_id, reason in (flagged or {}).items():
+        rows.append({"id": img_id, "split": split.get(img_id, ""), "reason": reason, "action": "dipertahankan, ditandai"})
+    return pd.DataFrame(rows, columns=["id", "split", "reason", "action"])
+
+
 def save_qc_figure(
     source: str,
     rows: pd.DataFrame,
@@ -126,6 +165,7 @@ def run_qc(
     all_ids: list[str] = []
     all_sources: list[str] = []
     all_hashes: list[np.ndarray] = []
+    all_images: dict[str, np.ndarray] = {}
     suspects: list[str] = []
 
     for source in cfg["sources"]:
@@ -176,6 +216,7 @@ def run_qc(
             all_ids.append(str(r.id))
             all_sources.append(str(source))
             all_hashes.append(compute_dhash(img))
+            all_images[str(r.id)] = img
 
         mean_int = px_sum / max(px_count, 1)
         var_int = max(0.0, px_sq_sum / max(px_count, 1) - mean_int * mean_int)
@@ -202,7 +243,15 @@ def run_qc(
 
     hashes_arr = np.stack(all_hashes) if all_hashes else np.empty((0, 64), dtype=bool)
     dup_df = find_cross_source_duplicates(all_ids, all_sources, hashes_arr, max_hamming=max_hamming)
+    qcfg = cfg.get("qc", {})
+    dup_df = verify_duplicates(
+        dup_df,
+        all_images,
+        size=int(qcfg.get("verify_size", 128)),
+        min_corr=float(qcfg.get("verify_min_corr", 0.99)),
+    )
     dup_df.to_csv(tables_dir / "qc_duplicates.csv", index=False)
+    flagged_table(manifest, qcfg.get("flagged", {})).to_csv(tables_dir / "qc_flags.csv", index=False)
 
     return summary_df, dup_df, suspects
 
@@ -213,11 +262,13 @@ def main() -> None:
     ap.add_argument("--out", default="results", help="Output directory (writes figures/ and tables/)")
     ap.add_argument("--seed", type=int, default=42, help="Random seed for QC sample grids")
     ap.add_argument("--n-samples", type=int, default=20, help="Samples per source in qc_{source}.png")
-    ap.add_argument("--max-hamming", type=int, default=4, help="Maximum dHash Hamming distance for duplicate flag")
+    ap.add_argument("--max-hamming", type=int, default=None, help="Maximum dHash Hamming distance (default: config qc.dhash_max_hamming)")
     ap.add_argument("--config", default=None, help="Override config YAML path")
     args = ap.parse_args()
 
     cfg = load_config(args.config) if args.config else load_config()
+    if args.max_hamming is None:
+        args.max_hamming = int(cfg.get("qc", {}).get("dhash_max_hamming", 4))
     proc_dir = Path(args.processed_dir)
     if not proc_dir.is_absolute():
         proc_dir = ROOT / proc_dir
@@ -235,9 +286,12 @@ def main() -> None:
     )
     print("== QC Summary ==")
     print(summary_df.to_string(index=False))
-    print(f"\nCross-source duplicate pairs (hamming <= {args.max_hamming}): {len(dup_df)}")
-    if not dup_df.empty:
-        print(dup_df.to_string(index=False))
+    n_true = int(dup_df["is_duplicate"].sum()) if "is_duplicate" in dup_df.columns else 0
+    print(f"\nCross-source dHash candidates (hamming <= {args.max_hamming}): {len(dup_df)}, verified duplicates: {n_true}")
+    if n_true:
+        print(dup_df[dup_df["is_duplicate"]].to_string(index=False))
+    elif not dup_df.empty:
+        print(f"max pixel correlation among candidates: {dup_df['pixel_corr'].max():.3f}")
     if suspects:
         print(f"\nHeuristic warnings ({len(suspects)}):")
         for s in suspects[:30]:

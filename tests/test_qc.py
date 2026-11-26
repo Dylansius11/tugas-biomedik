@@ -85,3 +85,37 @@ def test_dhash_ignores_same_source_pairs():
         max_hamming=4,
     )
     assert df.empty
+
+
+def test_second_check_separates_true_duplicate_from_lookalike(tmp_path):
+    from qc_data import verify_duplicates
+
+    proc = _make_qc_fixture(tmp_path)
+    out = tmp_path / "qc_out"
+    cfg = load_config()
+    _, dups, _ = run_qc(proc, out, cfg, n_samples=4, seed=42, max_hamming=64)
+
+    assert {"pixel_corr", "is_duplicate"} <= set(dups.columns)
+    true = dups[dups["is_duplicate"]]
+    assert set(zip(true["id_a"], true["id_b"])) == {("darwin/s_0", "montgomery/s_0")}
+
+    # Same coarse layout but different content: dHash may collide, correlation must not pass
+    a = np.tile(np.linspace(20, 230, 256, dtype=np.uint8), (256, 1))
+    b = a.copy()
+    b[:, 128:] = 255 - b[:, 128:]
+    cand = pd.DataFrame({"id_a": ["darwin/a"], "id_b": ["shenzhen/b"], "hamming": [3]})
+    res = verify_duplicates(cand, {"darwin/a": a, "shenzhen/b": b}, size=128, min_corr=0.99)
+    assert not bool(res["is_duplicate"].iloc[0])
+
+
+def test_flagged_images_are_listed_not_removed(tmp_path):
+    proc = _make_qc_fixture(tmp_path)
+    out = tmp_path / "qc_out"
+    cfg = load_config()
+    cfg["qc"] = {**cfg.get("qc", {}), "flagged": {"darwin/s_1": "kotak anotasi"}}
+    summary, _, _ = run_qc(proc, out, cfg, n_samples=4, seed=42)
+
+    flags = pd.read_csv(out / "tables" / "qc_flags.csv")
+    assert flags["id"].tolist() == ["darwin/s_1"]
+    assert flags["split"].iloc[0] == "train"
+    assert int(summary.loc[summary["source"] == "darwin", "n_images"].iloc[0]) == 4
