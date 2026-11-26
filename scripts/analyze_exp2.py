@@ -15,7 +15,13 @@ Mode "a" (Percobaan 2 sebagai analisis tambahan):
   X7_sample50.csv     N10 sebaran tingkat alarm, 1.000 sampel 50 citra
   figures/XF1..XF4    N12
 
+Mode "main" (skenario B, Percobaan 2 sebagai hasil utama), {out}/tables and {out}/figures:
+  T0_validation, T1_gap, T2_arms (Holm atas 6 uji: E1 dan E2 vs E0), T3_clinical, T5_alarm, T6_readiness,
+  T7_sample50, T8_fewshot, T9_verify; F1_dice_box, F2_gap, F3_alarm_e2, F4_fewshot, F5_worst_e2.
+  Tidak ada T4: Percobaan 2 tidak menguji CLAHE.
+
 Usage:
+    python scripts/analyze_exp2.py --mode main --pred-dir <predictions> --exp2-dir <percobaan2> --out results/exp2/main
     python scripts/analyze_exp2.py --mode a --pred-dir <predictions> --exp2-dir <percobaan2> --out results/exp2/nabil
 """
 from __future__ import annotations
@@ -58,6 +64,8 @@ SRC = AN.SOURCE_TITLE
 MODES = {
     # tested: arms that enter the Holm family. alarm_arms: arms whose A1/A2 alarm is evaluated.
     "a": {"tested": ["E2"], "alarm_arms": ["E0", "E2"]},
+    # Skenario B: Percobaan 2 sebagai hasil utama. E1 and E2 vs E0 like T2 tests S1-S3 vs S0.
+    "main": {"tested": ["E1", "E2"], "alarm_arms": ["E0", "E1", "E2"]},
 }
 
 
@@ -594,6 +602,83 @@ def run_mode_a(pred_dir: Path, exp2_dir: Path, out: Path, processed_dir: Path, h
     return {"X0_validation": x0, **tables}
 
 
+def plot_gap(t1: pd.DataFrame, cfg: dict, path: Path, title: str) -> None:
+    fig, axes = plt.subplots(1, len(cfg["folds"]), figsize=(4.5 * len(cfg["folds"]), 4.2), sharey=True)
+    for ax, fold in zip(np.atleast_1d(axes), cfg["folds"]):
+        sub = t1[t1["fold"] == fold].set_index("scenario").reindex(ARMS)
+        x, w = np.arange(len(ARMS)), 0.36
+        ax.bar(x - w / 2, sub["in_source_median_dice"], w - 0.02, label="Dalam sumber", color="#257de0")
+        ax.bar(x + w / 2, sub["foreign_median_dice"], w - 0.02, label="Sumber asing", color="#f47230")
+        for xi, (iv, fv) in enumerate(zip(sub["in_source_median_dice"], sub["foreign_median_dice"])):
+            ax.annotate(f"Δ={iv - fv:.3f}", xy=(xi, max(iv, fv) + 0.012), ha="center", fontsize=8)
+        ax.set_xticks(x, ARMS)
+        ax.set_title(f"Lipatan {SRC[held_out_source(fold)]}")
+        ax.set_xlabel("Lengan (kode)")
+        ax.set_ylim(0.0, 1.12)
+        ax.grid(axis="y", alpha=0.25)
+    axes[0].set_ylabel("Median koefisien Dice (tanpa satuan)")
+    axes[0].legend(loc="lower right", frameon=False)
+    fig.suptitle(title, fontsize=11)
+    plt.tight_layout()
+    plt.savefig(path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+
+
+def run_mode_main(pred_dir: Path, exp2_dir: Path, out: Path, processed_dir: Path, huda_dir: Path, main_tables: Path,
+                  cfg: dict, prog: Progress) -> dict[str, pd.DataFrame]:
+    """Skenario B: Percobaan 2 sebagai hasil utama. Same rules as the main analysis, arms instead of scenarios."""
+    mode = MODES["main"]
+    AN._configure_matplotlib()
+    tab_dir, fig_dir = out / "tables", out / "figures"
+    tab_dir.mkdir(parents=True, exist_ok=True)
+    fig_dir.mkdir(parents=True, exist_ok=True)
+    manifest = load_manifest(processed_dir)
+    gt_cache: dict[str, np.ndarray] = {}
+
+    prog("B2", "validasi berkas")
+    t0 = validate_inputs(pred_dir, exp2_dir, manifest, cfg)
+    t0.to_csv(tab_dir / "T0_validation.csv", index=False)
+    if not t0["valid"].all():
+        raise SystemExit(f"{int((~t0['valid']).sum())} berkas tidak valid, lihat {tab_dir / 'T0_validation.csv'}")
+
+    prog("B2", "evaluasi 27 run (E0, E1, E2)")
+    raw = evaluate_arms(pred_dir, exp2_dir, manifest, processed_dir, cfg, out / "metrics", gt_cache)
+    avg = average_over_seeds(raw, failure_dice=float(cfg["metrics"]["failure_dice"]))
+
+    prog("B2", "T1 celah, T2 lengan vs E0 (Holm 6 uji), T3 klinis")
+    t1 = AN.build_t1_gap(avg, {**cfg, "scenarios": ARMS})
+    t2 = build_comparisons(avg, cfg, mode["tested"])
+    t3 = build_clinical(avg, cfg)
+
+    prog("B2", "T5-T7 alarm A1/A2 pada E0, E1, E2")
+    scores, taus = compute_shift_records(pred_dir, exp2_dir, manifest, processed_dir, avg, cfg, mode["alarm_arms"])
+    t5 = build_alarm_table(scores, taus, huda_dir, mode["alarm_arms"])
+    t6 = build_readiness_table(avg, scores, taus, huda_dir, cfg, mode["alarm_arms"])
+    t7 = AN.build_t7_sample50(scores, taus, cfg)
+
+    prog("B2", "T8 few-shot, T9 verifikasi")
+    t8 = build_fewshot(raw, avg, exp2_dir, manifest, processed_dir, cfg, gt_cache)
+    t9 = verify_against_huda(avg, t2, t8, t5, huda_dir, main_tables, cfg)
+
+    tables = {"T1_gap": t1, "T2_arms": t2, "T3_clinical": t3, "T5_alarm": t5, "T6_readiness": t6,
+              "T7_sample50": t7, "T8_fewshot": t8, "T9_verify": t9}
+    for name, df in tables.items():
+        df.to_csv(tab_dir / f"{name}.csv", index=False)
+    scores.to_csv(tab_dir / "alarm_scores.csv", index=False)
+
+    prog("B3", "gambar F1-F5")
+    plot_dice_box(avg, cfg, fig_dir / "F1_dice_box.png", "Sebaran Dice pada Sumber Asing per Lengan")
+    plot_gap(t1, cfg, fig_dir / "F2_gap.png", "Celah Generalisasi per Lengan: Median Dice Dalam Sumber vs Sumber Asing")
+    plot_alarm_scatter(scores, taus, cfg, "E2", fig_dir / "F3_alarm_e2.png",
+                       "Skor Alarm vs Dice pada E2, Sumber Asing (merah = gagal)")
+    plot_fewshot(t8, cfg, fig_dir / "F4_fewshot.png", "Adaptasi Few-shot E2 (garis: rata-rata 3 seed, pita: rentang seed)")
+    plot_worst(avg, pred_dir, exp2_dir, manifest, processed_dir, cfg, "E2", fig_dir / "F5_worst_e2.png",
+               "Tiga Kasus Terburuk E2 per Sumber Asing (hijau = mask asli, merah = prediksi)")
+    n_bad = int((~t9["match"]).sum()) if not t9.empty else 0
+    prog.done(f"mode main selesai: {len(tables)} tabel, 5 gambar, verifikasi {len(t9) - n_bad}/{len(t9)} cocok")
+    return {"T0_validation": t0, **tables}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Analisis Percobaan 2 (post-hoc).")
     ap.add_argument("--mode", choices=sorted(MODES), default="a")
@@ -616,9 +701,10 @@ def main() -> None:
     processed = absolute(a.processed_dir or cfg["data"]["processed_dir"])
     out = absolute(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    prog = Progress(a.mode.upper(), enabled=not a.no_progress)
+    prog = Progress("B" if a.mode == "main" else a.mode.upper(), enabled=not a.no_progress)
     try:
-        run_mode_a(absolute(a.pred_dir), absolute(a.exp2_dir), out, processed, absolute(a.huda_tables),
+        runner = run_mode_main if a.mode == "main" else run_mode_a
+        runner(absolute(a.pred_dir), absolute(a.exp2_dir), out, processed, absolute(a.huda_tables),
                    absolute(a.main_tables), cfg, prog)
     except BaseException as e:
         if prog.enabled:

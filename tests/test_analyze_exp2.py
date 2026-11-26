@@ -157,3 +157,21 @@ def test_wrong_head_on_darwin_stops_the_analysis(tmp_path):
     bad = x0[~x0["valid"]]
     assert set(bad["arm"]) == {"E2"} and set(bad["fold"]) == {"ho_darwin"}
     assert (bad["foreign_head"] == "anatomical").all()
+
+
+def test_mode_main_tests_both_arms_with_holm_over_six(tmp_path):
+    cfg, proc, pred, exp2 = _workspace(tmp_path)
+    out = tmp_path / "main"
+    t = AE.run_mode_main(pred, exp2, out, proc, tmp_path / "no_huda", tmp_path / "no_main", cfg,
+                         AE.Progress("B", enabled=False))
+    for name in ("T0_validation", "T1_gap", "T2_arms", "T3_clinical", "T5_alarm", "T6_readiness", "T7_sample50",
+                 "T8_fewshot", "T9_verify"):
+        assert (out / "tables" / f"{name}.csv").exists(), name
+    for name in ("F1_dice_box", "F2_gap", "F3_alarm_e2", "F4_fewshot", "F5_worst_e2"):
+        assert (out / "figures" / f"{name}.png").exists(), name
+    assert not (out / "tables" / "T4_tuning.csv").exists()
+
+    t2 = t["T2_arms"]
+    assert (t2["role"] == "diuji").all() and len(t2) == 6 and (t2["holm_family_size"] == 6).all()
+    assert set(t["T5_alarm"]["scenario"]) == {"E0", "E1", "E2"}
+    assert set(t["T1_gap"]["scenario"]) == {"E0", "E1", "E2"}
