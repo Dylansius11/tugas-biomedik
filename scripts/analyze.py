@@ -587,7 +587,7 @@ def plot_f1_dice_by_scenario(avg_df: pd.DataFrame, cfg: dict, fig_dir: Path) -> 
         ax.set_ylim(0.0, 1.03)
         ax.grid(axis="y", alpha=0.25)
 
-    axes_arr[0].set_ylabel("Koefisien Dice (unitless)")
+    axes_arr[0].set_ylabel("Koefisien Dice (tanpa satuan)")
     axes_arr[0].legend(loc="lower right", frameon=False)
     fig.suptitle("Sebaran Koefisien Dice per Skenario pada Sumber Asing", fontsize=11)
     plt.tight_layout()
@@ -622,7 +622,7 @@ def plot_f2_gap(t1_df: pd.DataFrame, cfg: dict, fig_dir: Path) -> None:
         ax.set_ylim(0.0, 1.12)
         ax.grid(axis="y", alpha=0.25)
 
-    axes_arr[0].set_ylabel("Median koefisien Dice (unitless)")
+    axes_arr[0].set_ylabel("Median koefisien Dice (tanpa satuan)")
     axes_arr[0].legend(loc="lower right", frameon=False)
     fig.suptitle("Celah Generalisasi: Median Dice Dalam Sumber vs Sumber Asing", fontsize=11)
     plt.tight_layout()
@@ -670,7 +670,7 @@ def plot_f3_alarm_scatter(
                 ax.set_title(f"Sumber asing: {SOURCE_TITLE[ho]}")
             ax.set_xlabel(xlabel)
             if col_idx == 0:
-                ax.set_ylabel("Koefisien Dice (unitless)")
+                ax.set_ylabel("Koefisien Dice (tanpa satuan)")
             ax.set_ylim(0.0, 1.03)
             ax.grid(alpha=0.2)
             if row_idx == 0 and col_idx == len(folds) - 1:
@@ -726,7 +726,7 @@ def plot_f4_clahe_grid(t4_df: pd.DataFrame, cfg: dict, fig_dir: Path) -> None:
         ax.set_title(f"Lipatan {SOURCE_TITLE[held_out_source(fold)]}")
 
     axes_arr[0].set_ylabel("Batas kliping CLAHE (clip limit)")
-    fig.colorbar(im, ax=axes_arr.tolist(), shrink=0.85, label="Dice validasi (unitless)")
+    fig.colorbar(im, ax=axes_arr.tolist(), shrink=0.85, label="Dice validasi (tanpa satuan)")
     fig.suptitle("Pencarian Grid 12 Kombinasi CLAHE (* = pemenang per lipatan)", fontsize=11)
     plt.savefig(fig_dir / "F4_clahe_grid.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
@@ -821,7 +821,7 @@ def plot_f5_worst_cases(
                 ax.set_ylabel(f"{SOURCE_TITLE[held_out_source(fold)]}\n(piksel)", fontsize=8)
 
     fig.suptitle("Kasus Terburuk per Sumber Asing (hijau=GT, merah=prediksi)", fontsize=11)
-    plt.tight_layout()
+    plt.tight_layout(rect=(0, 0, 1, 0.985))
     plt.savefig(fig_dir / "F5_worst_cases.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
 
