@@ -1,0 +1,106 @@
+check,arm,fold,metric,ours,reference,diff,match
+huda main.csv,E0,ho_darwin,in_median,0.975350961002435,0.975350961002435,0.0,True
+huda main.csv,E0,ho_darwin,foreign_median,0.7730007245088024,0.7730007245088024,0.0,True
+huda main.csv,E0,ho_darwin,foreign_mean,0.7444981487602627,0.7444981487602627,0.0,True
+huda main.csv,E0,ho_darwin,foreign_fail_pct,97.33333333333334,97.33333333333334,0.0,True
+huda main.csv,E0,ho_darwin,coverage_median,0.6396812796656474,0.6396812796656474,0.0,True
+huda main.csv,E0,ho_montgomery,in_median,0.9661101046269837,0.9661101046269837,0.0,True
+huda main.csv,E0,ho_montgomery,foreign_median,0.9454548592266372,0.9454548592266372,0.0,True
+huda main.csv,E0,ho_montgomery,foreign_mean,0.9430977606685789,0.9430977606685789,0.0,True
+huda main.csv,E0,ho_montgomery,foreign_fail_pct,6.521739130434782,6.521739130434782,0.0,True
+huda main.csv,E0,ho_montgomery,coverage_median,0.9696125863616495,0.9696125863616495,0.0,True
+huda main.csv,E0,ho_shenzhen,in_median,0.9659227385595153,0.9659227385595153,0.0,True
+huda main.csv,E0,ho_shenzhen,foreign_median,0.8997894806205265,0.8997894806205265,0.0,True
+huda main.csv,E0,ho_shenzhen,foreign_mean,0.8949079053445735,0.8949079053445735,0.0,True
+huda main.csv,E0,ho_shenzhen,foreign_fail_pct,50.53003533568905,50.53003533568905,0.0,True
+huda main.csv,E0,ho_shenzhen,coverage_median,0.9821161746401201,0.9821161746401201,0.0,True
+huda main.csv,E1,ho_darwin,in_median,0.9742157354937341,0.9742157354937341,0.0,True
+huda main.csv,E1,ho_darwin,foreign_median,0.7763149188933302,0.7763149188933302,0.0,True
+huda main.csv,E1,ho_darwin,foreign_mean,0.7449538400753708,0.7449538400753708,0.0,True
+huda main.csv,E1,ho_darwin,foreign_fail_pct,97.83333333333334,97.83333333333334,0.0,True
+huda main.csv,E1,ho_darwin,coverage_median,0.6449473701026303,0.6449473701026303,0.0,True
+huda main.csv,E1,ho_montgomery,in_median,0.9685675907874641,0.9685675907874641,0.0,True
+huda main.csv,E1,ho_montgomery,foreign_median,0.9735466678571594,0.9735466678571594,0.0,True
+huda main.csv,E1,ho_montgomery,foreign_mean,0.9672035634517365,0.9672035634517365,0.0,True
+huda main.csv,E1,ho_montgomery,foreign_fail_pct,2.898550724637681,2.898550724637681,0.0,True
+huda main.csv,E1,ho_montgomery,coverage_median,0.9625673939956538,0.9625673939956538,0.0,True
+huda main.csv,E1,ho_shenzhen,in_median,0.9668267439703438,0.9668267439703438,0.0,True
+huda main.csv,E1,ho_shenzhen,foreign_median,0.9435937379421608,0.9435937379421608,0.0,True
+huda main.csv,E1,ho_shenzhen,foreign_mean,0.9357654758692188,0.9357654758692188,0.0,True
+huda main.csv,E1,ho_shenzhen,foreign_fail_pct,10.60070671378092,10.60070671378092,0.0,True
+huda main.csv,E1,ho_shenzhen,coverage_median,0.9857450474133045,0.9857450474133045,0.0,True
+huda main.csv,E2,ho_darwin,in_median,0.975121646884002,0.975121646884002,0.0,True
+huda main.csv,E2,ho_darwin,foreign_median,0.7791225592385221,0.7791225592385221,0.0,True
+huda main.csv,E2,ho_darwin,foreign_mean,0.7560222369614052,0.7560222369614052,0.0,True
+huda main.csv,E2,ho_darwin,foreign_fail_pct,97.33333333333334,97.33333333333334,0.0,True
+huda main.csv,E2,ho_darwin,coverage_median,0.6478527128035311,0.6478527128035311,0.0,True
+huda main.csv,E2,ho_montgomery,in_median,0.967847588816172,0.967847588816172,0.0,True
+huda main.csv,E2,ho_montgomery,foreign_median,0.9741565699331822,0.9741565699331822,0.0,True
+huda main.csv,E2,ho_montgomery,foreign_mean,0.9687387203182056,0.9687387203182056,0.0,True
+huda main.csv,E2,ho_montgomery,foreign_fail_pct,2.898550724637681,2.898550724637681,0.0,True
+huda main.csv,E2,ho_montgomery,coverage_median,0.958169457226129,0.958169457226129,0.0,True
+huda main.csv,E2,ho_shenzhen,in_median,0.9660612335917677,0.9660612335917677,0.0,True
+huda main.csv,E2,ho_shenzhen,foreign_median,0.9604344854302816,0.9604344854302816,0.0,True
+huda main.csv,E2,ho_shenzhen,foreign_mean,0.9500855808279559,0.9500855808279559,0.0,True
+huda main.csv,E2,ho_shenzhen,foreign_fail_pct,6.5371024734982335,6.5371024734982335,0.0,True
+huda main.csv,E2,ho_shenzhen,coverage_median,0.9859459748631755,0.9859459748631755,0.0,True
+huda vs_E0.csv,E1,ho_darwin,mean_diff,0.00045569131510818633,0.00045569131510818633,0.0,True
+huda vs_E0.csv,E1,ho_darwin,p_value (sebelum Holm),0.9799044835141116,0.9799044835141116,0.0,True
+huda vs_E0.csv,E1,ho_montgomery,mean_diff,0.024105802783157756,0.024105802783157756,0.0,True
+huda vs_E0.csv,E1,ho_montgomery,p_value (sebelum Holm),2.9961429726226303e-21,2.9961429726226303e-21,0.0,True
+huda vs_E0.csv,E1,ho_shenzhen,mean_diff,0.040857570524645094,0.040857570524645094,0.0,True
+huda vs_E0.csv,E1,ho_shenzhen,p_value (sebelum Holm),1.0714378927560206e-86,1.0714378927560206e-86,0.0,True
+huda vs_E0.csv,E2,ho_darwin,mean_diff,0.011524088201142717,0.011524088201142717,0.0,True
+huda vs_E0.csv,E2,ho_darwin,p_value (sebelum Holm),4.246996901729852e-10,4.246996901729852e-10,0.0,True
+huda vs_E0.csv,E2,ho_montgomery,mean_diff,0.025640959649626816,0.025640959649626816,0.0,True
+huda vs_E0.csv,E2,ho_montgomery,p_value (sebelum Holm),1.727443086226024e-20,1.727443086226024e-20,0.0,True
+huda vs_E0.csv,E2,ho_shenzhen,mean_diff,0.05517767548338241,0.05517767548338241,0.0,True
+huda vs_E0.csv,E2,ho_shenzhen,p_value (sebelum Holm),3.431574976554505e-85,3.431574976554505e-85,0.0,True
+huda fewshot.csv,E0,ho_darwin,k0 median,0.7895649939124465,0.7895649939124465,0.0,True
+huda fewshot.csv,E0,ho_darwin,k0 fail_pct,95.83333333333334,95.83333333333334,0.0,True
+huda fewshot.csv,E2,ho_darwin,k0 median,0.7873576111112341,0.7873576111112341,0.0,True
+huda fewshot.csv,E2,ho_darwin,k0 fail_pct,95.83333333333334,95.83333333333334,0.0,True
+huda fewshot.csv,E2+k,ho_darwin,k5 median,0.8952126631400936,0.8952126631400936,0.0,True
+huda fewshot.csv,E2+k,ho_darwin,k5 fail_pct,54.166666666666664,54.166666666666664,0.0,True
+huda fewshot.csv,E2+k,ho_darwin,k10 median,0.9191380491674666,0.9191380491674666,0.0,True
+huda fewshot.csv,E2+k,ho_darwin,k10 fail_pct,21.666666666666668,21.666666666666668,0.0,True
+huda fewshot.csv,E2+k,ho_darwin,k20 median,0.9345094884193633,0.9345094884193633,0.0,True
+huda fewshot.csv,E2+k,ho_darwin,k20 fail_pct,15.833333333333332,15.833333333333332,0.0,True
+huda fewshot.csv,E2+k,ho_darwin,k50 median,0.9429407161705912,0.9429407161705912,0.0,True
+huda fewshot.csv,E2+k,ho_darwin,k50 fail_pct,10.0,10.0,0.0,True
+huda fewshot.csv,E0,ho_montgomery,k0 median,0.9491496661494575,0.9491496661494575,0.0,True
+huda fewshot.csv,E0,ho_montgomery,k0 fail_pct,10.714285714285714,10.714285714285714,0.0,True
+huda fewshot.csv,E2,ho_montgomery,k0 median,0.9731865391795753,0.9731865391795753,0.0,True
+huda fewshot.csv,E2,ho_montgomery,k0 fail_pct,3.571428571428571,3.571428571428571,0.0,True
+huda fewshot.csv,E2+k,ho_montgomery,k5 median,0.9807826146838825,0.9807826146838825,0.0,True
+huda fewshot.csv,E2+k,ho_montgomery,k5 fail_pct,0.0,0.0,0.0,True
+huda fewshot.csv,E2+k,ho_montgomery,k10 median,0.9814310127791089,0.9814310127791089,0.0,True
+huda fewshot.csv,E2+k,ho_montgomery,k10 fail_pct,0.0,0.0,0.0,True
+huda fewshot.csv,E2+k,ho_montgomery,k20 median,0.9814912843325869,0.9814912843325869,0.0,True
+huda fewshot.csv,E2+k,ho_montgomery,k20 fail_pct,0.0,0.0,0.0,True
+huda fewshot.csv,E2+k,ho_montgomery,k50 median,0.982308814668075,0.982308814668075,0.0,True
+huda fewshot.csv,E2+k,ho_montgomery,k50 fail_pct,0.0,0.0,0.0,True
+huda fewshot.csv,E0,ho_shenzhen,k0 median,0.9018231155988875,0.9018231155988875,0.0,True
+huda fewshot.csv,E0,ho_shenzhen,k0 fail_pct,44.73684210526316,44.73684210526316,0.0,True
+huda fewshot.csv,E2,ho_shenzhen,k0 median,0.9602523741811718,0.9602523741811718,0.0,True
+huda fewshot.csv,E2,ho_shenzhen,k0 fail_pct,7.894736842105263,7.894736842105263,0.0,True
+huda fewshot.csv,E2+k,ho_shenzhen,k5 median,0.9595498432029669,0.9595498432029669,0.0,True
+huda fewshot.csv,E2+k,ho_shenzhen,k5 fail_pct,6.140350877192982,6.140350877192982,0.0,True
+huda fewshot.csv,E2+k,ho_shenzhen,k10 median,0.9638351677953263,0.9638351677953263,0.0,True
+huda fewshot.csv,E2+k,ho_shenzhen,k10 fail_pct,7.894736842105263,7.894736842105263,0.0,True
+huda fewshot.csv,E2+k,ho_shenzhen,k20 median,0.9664461821997338,0.9664461821997338,0.0,True
+huda fewshot.csv,E2+k,ho_shenzhen,k20 fail_pct,7.894736842105263,7.894736842105263,0.0,True
+huda fewshot.csv,E2+k,ho_shenzhen,k50 median,0.9688063682308157,0.9688063682308157,0.0,True
+huda fewshot.csv,E2+k,ho_shenzhen,k50 fail_pct,8.771929824561402,8.771929824561402,0.0,True
+hasil utama T5 (S0),E0,ho_darwin,A1 tau,0.22184358346188576,0.22184358346188576,0.0,True
+hasil utama T5 (S0),E0,ho_darwin,A1 alarm_rate_pct,7.166666666666667,7.166666666666667,0.0,True
+hasil utama T5 (S0),E0,ho_darwin,A2 tau,0.0432207741776907,0.0432207741776907,0.0,True
+hasil utama T5 (S0),E0,ho_darwin,A2 alarm_rate_pct,51.66666666666667,51.66666666666667,0.0,True
+hasil utama T5 (S0),E0,ho_montgomery,A1 tau,0.17878136328973523,0.17878136328973523,0.0,True
+hasil utama T5 (S0),E0,ho_montgomery,A1 alarm_rate_pct,21.014492753623188,21.014492753623188,0.0,True
+hasil utama T5 (S0),E0,ho_montgomery,A2 tau,0.05437939568985793,0.05437939568985793,0.0,True
+hasil utama T5 (S0),E0,ho_montgomery,A2 alarm_rate_pct,0.7246376811594203,0.7246376811594203,0.0,True
+hasil utama T5 (S0),E0,ho_shenzhen,A1 tau,0.14984220557119324,0.14984220557119324,0.0,True
+hasil utama T5 (S0),E0,ho_shenzhen,A1 alarm_rate_pct,43.46289752650176,43.46289752650176,0.0,True
+hasil utama T5 (S0),E0,ho_shenzhen,A2 tau,0.05843283234380381,0.05843283234380381,0.0,True
+hasil utama T5 (S0),E0,ho_shenzhen,A2 alarm_rate_pct,0.7067137809187279,0.7067137809187279,0.0,True

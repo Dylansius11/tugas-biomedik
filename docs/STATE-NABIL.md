@@ -17,6 +17,7 @@ Definisi: `docs/PROTOCOL.md` bagian 2, 7, 8, 9.
 | N4 Statistik | selesai | T2 (Wilcoxon, bootstrap, Holm 9 uji) |
 | N5 Analisis | selesai | 7 tabel + 6 gambar dari prediksi asli. Dua kali jalan pada prediksi palsu: tabel, metrik, dan PNG identik byte per byte |
 | N6 Referensi | sebagian | DOI dicek. Cek angka laporan ke CSV menunggu laporan Dylan |
+| B1–B3 Percobaan 2 skenario B | selesai (cabang `nabil/exp2-b`) | `results/exp2/main/` T0–T9, F1–F5, `docs/HASIL-NABIL-PERCOBAAN-2-B.md`, plan `docs/plans/BUILD-PLAN-NABIL-PERCOBAAN-2-B.md`. Verifikasi 105/105 cocok |
 
 ## Data yang dipakai
 
@@ -50,4 +51,5 @@ Definisi: `docs/PROTOCOL.md` bagian 2, 7, 8, 9.
 ```
 python scripts/qc_data.py
 python scripts/analyze.py --pred-dir <folder predictions> --out results     # sekitar 6 menit di CPU
+python scripts/analyze_exp2.py --mode main --pred-dir <folder predictions> --exp2-dir <folder percobaan2> --out results/exp2/main   # cabang nabil/exp2-b, sekitar 5 menit
 ```
