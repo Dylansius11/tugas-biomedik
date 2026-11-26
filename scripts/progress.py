@@ -27,7 +27,7 @@ CHECKS: list[tuple[str, str, str, list[str]]] = [
     ("nabil/analysis", "QC", "Keputusan sementara QC + verifikasi duplikat", ["results/tables/qc_flags.csv"]),
     ("nabil/analysis", "DOC", "Dokumen branching A/B", ["docs/plans/BRANCHING-PERCOBAAN-2.md"]),
     ("nabil/exp2-a", "N7", "Validasi 54 berkas", ["results/exp2/nabil/X0_validation.csv"]),
-    ("nabil/exp2-a", "N8", "Verifikasi angka Huda", ["results/exp2/nabil/X1_verify_huda.csv"]),
+    ("nabil/exp2-a", "N8", "Verifikasi angka Huda", ["results/exp2/nabil/X1_verify.csv"]),
     ("nabil/exp2-a", "N9", "Statistik E2 vs E0", ["results/exp2/nabil/X2_e2_vs_e0.csv", "results/exp2/nabil/X3_clinical.csv"]),
     ("nabil/exp2-a", "N10", "Alarm A1/A2 pada E2", ["results/exp2/nabil/X4_alarm.csv", "results/exp2/nabil/X5_readiness.csv"]),
     ("nabil/exp2-a", "N11", "Few-shot", ["results/exp2/nabil/X6_fewshot.csv"]),
