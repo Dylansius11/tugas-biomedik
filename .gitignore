@@ -18,3 +18,5 @@ __pycache__/
 .ipynb_checkpoints/
 .venv/
 results/fake_predictions/
+results/fake_metrics/
+results/fake_analysis*/
