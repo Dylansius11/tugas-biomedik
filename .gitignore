@@ -20,3 +20,6 @@ __pycache__/
 results/fake_predictions/
 results/fake_metrics/
 results/fake_analysis*/
+
+# catatan progres lokal (scripts/progress.py)
+progress/

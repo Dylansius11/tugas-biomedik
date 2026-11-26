@@ -1,17 +1,17 @@
 # STATE: Nabil (QC, evaluasi, alarm, statistik, tabel/gambar)
 
-Keadaan per 25 November 2026, cabang `nabil/analysis`.
-Rencana: `docs/plans/BUILD-PLAN-NABIL.md` (hasil utama) dan `docs/plans/BUILD-PLAN-NABIL-PERCOBAAN-2.md` (usulan, post-hoc).
+Keadaan per 26 November 2026, cabang `nabil/analysis`.
+Rencana: `docs/plans/BUILD-PLAN-NABIL.md` (hasil utama), `docs/plans/BUILD-PLAN-NABIL-PERCOBAAN-2.md` (Percobaan 2), `docs/plans/BRANCHING-PERCOBAAN-2.md` (cabang skenario A dan B).
 Definisi: `docs/PROTOCOL.md` bagian 2, 7, 8, 9.
 
-**Cabang ini belum diminta merge ke `main`.** Menunggu keputusan tim apakah laporan memakai hasil utama saja atau ditambah Percobaan 2.
+**Cabang ini belum diminta merge ke `main`.** Analisis Percobaan 2 dikerjakan di `nabil/exp2-a` (tambahan) dan `nabil/exp2-b` (hasil utama). Cek progres: `python scripts/progress.py`.
 
 ## Status
 
 | Langkah | Status | Bukti |
 |---|---|---|
 | N0 Lingkungan | selesai | Python 3.13, torch CPU, `python -m pytest -q` 51 lolos |
-| N1 QC | selesai | `results/figures/qc_*.png`, `results/tables/qc_*.csv`, `docs/QC-REPORT.md` |
+| N1 QC | selesai | `results/figures/qc_*.png`, `results/tables/qc_*.csv`, `docs/QC-REPORT.md`. Keputusan sementara 26-11: citra 00006967 ditandai, verifikasi duplikat kedua (0 duplikat) |
 | N2 Evaluasi | selesai | 36 CSV di `results/metrics`, baris = jumlah citra, tanpa NaN |
 | N3 Alarm | selesai | T5–T7 |
 | N4 Statistik | selesai | T2 (Wilcoxon, bootstrap, Holm 9 uji) |
@@ -33,15 +33,16 @@ Definisi: `docs/PROTOCOL.md` bagian 2, 7, 8, 9.
 
 ## Untuk Dylan
 
-1. `darwin/00006967_fff49165-b22d-4bb4-b9d1-d5d62c52436c.annot.original` (split test): kotak anotasi tercetak di citra, mask ikut berbentuk kotak. Dibuang atau ditandai?
-2. dHash 8x8 menandai 860 pasangan lintas sumber, semuanya bukan duplikat (korelasi piksel maksimum 0,91). Usul verifikasi kedua di `qc_data.py`.
-3. Posisi Percobaan 2 di laporan dan persetujuan plan analisisnya.
+1. Keputusan sementara QC (Dylan belum menjawab): `darwin/00006967_...annot.original` dipertahankan dan ditandai (tidak pernah gagal di 36 run), verifikasi duplikat kedua ditambahkan (korelasi piksel ≥ 0,99, hasil 0 dari 860). Setuju atau dibalik?
+2. Posisi Percobaan 2 di laporan: A (tambahan) atau B (hasil utama). Keduanya dikerjakan di cabang terpisah.
 
 ## Catatan kode
 
 - `analyze.py`: judul F5 tidak lagi menumpuk, label "(unitless)" diganti "(tanpa satuan)".
 - `make_fake_predictions.py` bawaannya hanya seed 11. Untuk 36 kombinasi pakai `--seeds 11 22 33`.
 - `results/fake_*` di-`.gitignore`. Angka dari prediksi palsu tidak boleh masuk laporan.
+- `qc_data.py`: kolom `pixel_corr`, `is_duplicate` di `qc_duplicates.csv`, berkas baru `qc_flags.csv`, ambang di `configs/default.yaml` bagian `qc`.
+- `scripts/progress.py`: cek progres. Catatan kerja di `progress/log.txt` (tidak masuk git).
 - `evaluate.py` membaca mask GT dengan `> 0`. Aman karena mask processed hanya 0/255.
 
 ## Cara mengulang
