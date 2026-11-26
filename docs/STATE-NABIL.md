@@ -17,12 +17,13 @@ Definisi: `docs/PROTOCOL.md` bagian 2, 7, 8, 9.
 | N4 Statistik | selesai | T2 (Wilcoxon, bootstrap, Holm 9 uji) |
 | N5 Analisis | selesai | 7 tabel + 6 gambar dari prediksi asli. Dua kali jalan pada prediksi palsu: tabel, metrik, dan PNG identik byte per byte |
 | N6 Referensi | sebagian | DOI dicek. Cek angka laporan ke CSV menunggu laporan Dylan |
+| N7–N12 Percobaan 2 skenario A | selesai (cabang `nabil/exp2-a`) | `results/exp2/nabil/` X0–X7, XF1–XF4, `docs/HASIL-NABIL-PERCOBAAN-2.md`. Verifikasi angka Huda 105/105 cocok |
 
 ## Data yang dipakai
 
 - `data/processed` dibangun ulang dari Mendeley (`download_data.sh`, 4 SHA-256 cocok) dengan `prepare_data.py`: Darwin 600, Montgomery 138, Shenzhen 566.
 - Prediksi: 36 `pred.npz` percobaan utama (U-Net satu head) dari Huda, dibaca dengan `--pred-dir` dari luar repo. Urutan `ids` dan `group` identik dengan prediksi palsu, jadi pembagian data sama.
-- Belum dipakai: prediksi Percobaan 2 (E1, E2 dua head, few-shot).
+- Percobaan 2 (E1, E2 dua head, few-shot): dibaca dari `E:\...\code\percobaan2` dengan `--exp2-dir`, dipakai di cabang `nabil/exp2-a` dan `nabil/exp2-b`.
 
 ## Pencocokan dengan angka eksploratif Huda (`STATE-PERCOBAAN-1.md`)
 
@@ -50,4 +51,5 @@ Definisi: `docs/PROTOCOL.md` bagian 2, 7, 8, 9.
 ```
 python scripts/qc_data.py
 python scripts/analyze.py --pred-dir <folder predictions> --out results     # sekitar 6 menit di CPU
+python scripts/analyze_exp2.py --mode a --pred-dir <folder predictions> --exp2-dir <folder percobaan2> --out results/exp2/nabil   # cabang nabil/exp2-a, sekitar 5 menit
 ```
